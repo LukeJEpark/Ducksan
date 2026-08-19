@@ -7,340 +7,324 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
-            background-color: #F8F9FA;
-            color: #212529;
+            background-color: #F5F5F7; /* 애플 스타일 오프화이트 배경 */
+            color: #1D1D1F; /* 애플 스타일 다크 그레이 텍스트 */
             overflow-x: hidden;
         }
-        .nav-link { transition: color 0.3s; }
-        .nav-link:hover { color: #0071e3; }
         
+        /* 🌟 1. 애플 스타일의 다이내믹 블러 & 스케일 애니메이션 🌟 */
+        .apple-reveal {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            filter: blur(10px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity, filter;
+        }
+        .apple-reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* 🌟 2. iOS 위젯 스타일 카드 디자인 🌟 */
+        .ios-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ios-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 탭 디자인 */
         .process-tab {
             cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
+            transition: all 0.3s;
             border-bottom: 3px solid transparent;
+            padding-bottom: 0.5rem;
         }
         .process-tab.active {
-            color: #0071e3;
-            border-bottom-color: #0071e3;
+            color: #0066CC; /* 애플 블루 */
+            border-bottom-color: #0066CC;
             font-weight: 700;
         }
         .process-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.7s ease-in-out, opacity 0.7s ease-in-out;
+            transition: max-height 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease-in-out;
             opacity: 0;
         }
         .process-content.active {
             max-height: 9999px;
             opacity: 1;
         }
-        .strength-card {
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: pointer;
+
+        /* 타임라인 디자인 */
+        .timeline-line {
+            height: 0;
+            background: linear-gradient(to bottom, #0066CC, #34C759); /* 블루에서 그린으로 변하는 그라데이션 라인 */
+            transition: height 2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .strength-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        .timeline-container.is-visible .timeline-line {
+            height: 100%;
         }
+
+        /* 토글 컨테이너 */
         .site-details-container {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: max-height 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease-in-out;
             opacity: 0;
+            border-radius: 24px;
         }
         .site-details-container.expanded {
             max-height: 9999px;
             opacity: 1;
         }
-        .site-toggle-card {
-            cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .site-toggle-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        html { scroll-behavior: smooth; }
         
-        /* Modal Styles */
+        /* 모달창 애플 스타일 블러 배경 */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background-color: rgba(0, 0, 0, 0.75);
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px); /* 배경을 흐리게 */
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 100;
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
         .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             max-width: 90%;
             max-height: 90%;
             overflow-y: auto;
-            position: relative;
-            transform: scale(0.9);
-            opacity: 0;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.active {
+            opacity: 1;
         }
         .modal-overlay.active .modal-content {
-            transform: scale(1);
-            opacity: 1;
-        }
-        .image-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 101;
-        }
-        .image-modal-content {
-            position: relative;
-            max-width: 95%;
-            max-height: 95%;
-            transform: scale(0.8);
-            opacity: 0;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .image-overlay.active .image-modal-content {
-            transform: scale(1);
-            opacity: 1;
-        }
-        .image-overlay img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            transform: scale(1) translateY(0);
         }
 
-        /* 🌟 NEW: 애플 스타일의 부드럽고 쫀득한 스크롤 애니메이션 클래스 🌟 */
-        .animate-up {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        /* 텍스트 그라데이션 */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(90deg, #1D1D1F, #434344);
         }
-        .animate-up.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        /* 시차를 두어 스르륵 나타나게 하는 딜레이 클래스 */
-        .delay-100 { transition-delay: 100ms; }
-        .delay-200 { transition-delay: 200ms; }
-        .delay-300 { transition-delay: 300ms; }
-        
-        /* 🌟 NEW: 타임라인 중앙선 스크롤 애니메이션 🌟 */
-        .timeline-line {
-            height: 0;
-            transition: height 2s cubic-bezier(0.16, 1, 0.3, 1); /* 천천히 선이 그어지는 효과 */
-        }
-        .timeline-container.is-visible .timeline-line {
-            height: 100%;
+        .text-gradient-blue {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(135deg, #0066CC, #3399FF);
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
 
-    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <!-- 헤더: 블러 효과 강화 -->
+    <header class="bg-white/60 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-800 animate-up is-visible">DUCKSAN</h1>
-            <div class="hidden md:flex space-x-8 animate-up is-visible delay-100">
-                <a href="#about" class="nav-link text-gray-600">Company Overview</a>
-                <a href="#history" class="nav-link text-gray-600">History</a>
-                <a href="#bluesign" class="nav-link text-gray-600">Sustainability</a>
-                <a href="#process" class="nav-link text-gray-600">Production Process</a>
-                <a href="#strengths" class="nav-link text-gray-600">Core Strengths</a>
-            </div>
-            <div class="md:hidden">
-                <button id="mobile-menu-button" class="text-gray-800 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                </button>
+            <h1 class="text-2xl font-extrabold tracking-tighter text-gray-900">DUCKSAN</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#about" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Overview</a>
+                <a href="#history" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">History</a>
+                <a href="#bluesign" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Sustainability</a>
+                <a href="#process" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Process</a>
+                <a href="#strengths" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Strengths</a>
             </div>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden">
-            <a href="#about" class="block py-2 px-6 text-sm text-gray-700">Company Overview</a>
-            <a href="#history" class="block py-2 px-6 text-sm text-gray-700">History</a>
-            <a href="#bluesign" class="block py-2 px-6 text-sm text-gray-700">Sustainability</a>
-            <a href="#process" class="block py-2 px-6 text-sm text-gray-700">Production Process</a>
-            <a href="#strengths" class="block py-2 px-6 text-sm text-gray-700">Core Strengths</a>
-        </div>
     </header>
 
     <main>
         <!-- ABOUT SECTION -->
-        <section id="about" class="py-20 md:py-32 bg-white flex items-center min-h-screen">
+        <section id="about" class="pt-32 pb-20 md:py-40 flex items-center min-h-screen">
             <div class="container mx-auto px-6 text-center">
-                <h2 class="text-4xl md:text-7xl font-extrabold text-gray-800 tracking-tight animate-up">The Professional of Fabric</h2>
-                <p class="text-lg md:text-2xl text-gray-600 mt-6 max-w-4xl mx-auto animate-up delay-100">Leading the future of the textile industry with innovation and technology since 1988.</p>
+                <h2 class="text-5xl md:text-8xl font-extrabold tracking-tight text-gradient apple-reveal mb-6">The Professional<br>of Fabric.</h2>
+                <p class="text-xl md:text-3xl text-gray-500 max-w-3xl mx-auto font-medium apple-reveal delay-100">Leading the future of the textile industry with innovation and technology since 1988.</p>
                 
-                <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-gray-100 p-8 rounded-xl shadow-lg animate-up delay-100">
-                        <p class="text-5xl md:text-6xl font-bold text-blue-600">1988</p>
-                        <p class="mt-2 text-gray-700 font-semibold text-lg">Founded</p>
-                        <p class="text-3xl mt-2">📅</p>
+                <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="ios-card p-10 apple-reveal delay-100">
+                        <p class="text-6xl md:text-7xl font-extrabold text-gradient-blue">1988</p>
+                        <p class="mt-4 text-gray-800 font-semibold text-xl">Founded</p>
                     </div>
-                    <div class="bg-gray-100 p-8 rounded-xl shadow-lg animate-up delay-200">
-                        <p class="text-5xl md:text-6xl font-bold text-blue-600">$100M</p>
-                        <p class="mt-2 text-gray-700 font-semibold text-lg">2025 Overseas Target</p>
-                        <p class="text-3xl mt-2">🎯</p>
+                    <div class="ios-card p-10 apple-reveal delay-200">
+                        <p class="text-6xl md:text-7xl font-extrabold text-gradient-blue">$100M</p>
+                        <p class="mt-4 text-gray-800 font-semibold text-xl">2025 Overseas Target</p>
                     </div>
-                    <div id="site-toggle-card" class="site-toggle-card bg-gray-100 p-8 rounded-xl shadow-lg animate-up delay-300">
-                        <p class="text-5xl md:text-6xl font-bold text-blue-600">4+</p>
-                        <p class="mt-2 text-gray-700 font-semibold text-lg">Domestic & Overseas Sites</p>
-                        <p class="text-sm text-gray-500 mt-2">Click to view details</p>
+                    <div id="site-toggle-card" class="ios-card p-10 cursor-pointer apple-reveal delay-300 relative overflow-hidden group">
+                        <p class="text-6xl md:text-7xl font-extrabold text-gradient-blue group-hover:scale-110 transition-transform duration-500">4+</p>
+                        <p class="mt-4 text-gray-800 font-semibold text-xl">Global Sites</p>
+                        <p class="text-sm text-blue-500 mt-2 font-medium">Tap to explore ➔</p>
                     </div>
                 </div>
                 
-                <div id="site-details-container" class="site-details-container mt-12 bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-left">Our Global Presence</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-gray-100 p-6 rounded-lg shadow-sm text-left">
-                            <h4 class="font-bold text-xl mb-2">Seoul Plant 1 & Office (Gwangju, Gyeonggi-do, Korea)</h4>
-                            <p class="text-gray-700 mb-4">76, Opoan-ro, Opo-eup, Gwangju-si, Gyeonggi-do</p>
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/seoul-map.jpg" alt="Seoul map" class="w-full h-auto rounded-md cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Seoul+Map+Image';">
+                <div id="site-details-container" class="site-details-container mt-12 bg-white p-10 shadow-xl">
+                    <h3 class="text-3xl font-bold text-gray-900 mb-8 text-left">Our Global Presence</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                        <div class="bg-[#F5F5F7] p-6 rounded-[20px]">
+                            <h4 class="font-bold text-xl mb-2 text-gray-900">Seoul Plant 1 & Office</h4>
+                            <p class="text-gray-500 mb-4 text-sm">Gwangju-si, Gyeonggi-do, Korea</p>
+                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/seoul-map.jpg" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Seoul+Map';">
                         </div>
-                        <div class="bg-gray-100 p-6 rounded-lg shadow-sm text-left">
-                            <h4 class="font-bold text-xl mb-2">Busan Office (Busan, Korea)</h4>
-                            <p class="text-gray-700 mb-4">28, Hakgam-daero 123beon-gil, Sasang-gu, Busan</p>
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/busan-map.jpg" alt="Busan map" class="w-full h-auto rounded-md cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Busan+Map+Image';">
+                        <div class="bg-[#F5F5F7] p-6 rounded-[20px]">
+                            <h4 class="font-bold text-xl mb-2 text-gray-900">Busan Office</h4>
+                            <p class="text-gray-500 mb-4 text-sm">Sasang-gu, Busan, Korea</p>
+                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/busan-map.jpg" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Busan+Map';">
                         </div>
-                        <div class="bg-gray-100 p-6 rounded-lg shadow-sm text-left">
-                            <h4 class="font-bold text-xl mb-2">DSVINA Plant & Office (Ho Chi Minh, Vietnam)</h4>
-                            <p class="text-gray-700 mb-4">Lô A4, KCN KSB (Khu B, huyện Bắc, Bình Dương 590000 Vietnam</p>
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/dsvina-map.jpg" alt="DSVINA map" class="w-full h-auto rounded-md cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=DSVINA+Map+Image';">
+                        <div class="bg-[#F5F5F7] p-6 rounded-[20px]">
+                            <h4 class="font-bold text-xl mb-2 text-gray-900">DSVINA Plant</h4>
+                            <p class="text-gray-500 mb-4 text-sm">Bình Dương, Vietnam</p>
+                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/dsvina-map.jpg" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=DSVINA+Map';">
                         </div>
-                        <div class="bg-gray-100 p-6 rounded-lg shadow-sm text-left">
-                            <h4 class="font-bold text-xl mb-2">Indonesia Expansion (Jakarta, Indonesia)</h4>
-                            <p class="text-gray-700 mb-4">Block E No. 5 Artha Industrial Hill, Kecamatan Telukjambe Barat, Kabupaten Karawang, Provinsi Jawa Barat 41361, Indonesia</p>
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/indonesia-map.jpg" alt="Indonesia map" class="w-full h-auto rounded-md cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Indonesia+Map+Image';">
+                        <div class="bg-[#F5F5F7] p-6 rounded-[20px]">
+                            <h4 class="font-bold text-xl mb-2 text-gray-900">Indonesia Expansion</h4>
+                            <p class="text-gray-500 mb-4 text-sm">Jakarta, Indonesia</p>
+                            <!-- 인도네시아 사진 원하시는 파일로 적용됨 -->
+                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/indonesia%20-%20under%20construction.jpg" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Indonesia+Map';">
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- HISTORY SECTION -->
-        <section id="history" class="py-20 md:py-32 flex items-center min-h-screen">
+        <!-- HISTORY SECTION (모던 타임라인) -->
+        <section id="history" class="py-32 flex items-center min-h-screen bg-white">
             <div class="container mx-auto px-6">
-                <div class="text-center mb-16 animate-up">
-                    <h3 class="text-4xl md:text-5xl font-bold">History of DUCKSAN</h3>
-                    <p class="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">DUCKSAN's journey to becoming a fabric professional.</p>
+                <div class="text-center mb-24 apple-reveal">
+                    <h3 class="text-5xl font-bold tracking-tight text-gray-900">Our Journey.</h3>
                 </div>
-                <div class="relative timeline-container animate-up delay-100">
-                    <div class="border-l-4 border-gray-200 absolute top-0 left-1/2 -ml-0.5 timeline-line" style="width: 4px;"></div>
-                    <div class="space-y-12">
+                <div class="relative timeline-container apple-reveal delay-100 max-w-5xl mx-auto">
+                    <!-- 그라데이션 세로선 -->
+                    <div class="absolute top-0 left-1/2 -ml-[2px] w-[4px] bg-gray-100 h-full rounded-full overflow-hidden">
+                        <div class="timeline-line w-full"></div>
+                    </div>
+                    
+                    <div class="space-y-24">
                         <!-- 1988 -->
-                        <div class="flex justify-center items-center w-full animate-up delay-100">
-                            <div class="w-full md:w-1/2 flex justify-end pr-8">
-                                <div class="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md">
-                                    <p class="text-right text-3xl font-bold text-gray-800">1988</p>
-                                    <p class="text-right text-lg font-semibold mt-1">DUCKSAN Established</p>
-                                    <p class="text-right text-gray-600 mt-2">Took the first great step towards the textile industry.</p>
+                        <div class="flex flex-col md:flex-row justify-center items-center w-full apple-reveal delay-100 relative">
+                            <div class="w-full md:w-1/2 flex justify-end md:pr-16 mb-8 md:mb-0">
+                                <div class="text-right">
+                                    <p class="text-5xl font-extrabold text-gray-900">1988</p>
+                                    <p class="text-2xl font-semibold mt-2 text-gray-800">DUCKSAN Established</p>
+                                    <p class="text-gray-500 mt-3 text-lg">Took the first great step towards the textile industry.</p>
                                 </div>
                             </div>
-                            <div class="w-10 h-10 bg-blue-600 rounded-full absolute left-1/2 -ml-5 flex items-center justify-center text-white font-bold z-10">1</div>
+                            <div class="w-6 h-6 bg-white border-4 border-[#0066CC] rounded-full absolute left-1/2 -ml-3 z-10 shadow-[0_0_15px_rgba(0,102,204,0.5)] hidden md:block"></div>
                             <div class="w-full md:w-1/2"></div>
                         </div>
+                        
                         <!-- 2017 -->
-                        <div class="flex justify-center items-center w-full animate-up delay-200">
-                             <div class="w-full md:w-1/2"></div>
-                            <div class="w-10 h-10 bg-blue-600 rounded-full absolute left-1/2 -ml-5 flex items-center justify-center text-white font-bold z-10">2</div>
-                            <div class="w-full md:w-1/2 flex justify-start pl-8">
-                                <div class="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md">
-                                    <p class="text-left text-3xl font-bold text-gray-800">2017</p>
-                                    <p class="text-left text-lg font-semibold mt-1">DSVINA Factory Completion</p>
-                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/dsvina-factory-completion.JPG" alt="DSVINA Factory" class="w-full h-auto rounded-md mt-4 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=DSVINA+Factory';">
-                                    <p class="text-left text-gray-600 mt-2">Secured global competitiveness through our Vietnam production base.</p>
+                        <div class="flex flex-col md:flex-row justify-center items-center w-full apple-reveal delay-200 relative">
+                             <div class="w-full md:w-1/2 hidden md:block"></div>
+                             <div class="w-6 h-6 bg-white border-4 border-[#0066CC] rounded-full absolute left-1/2 -ml-3 z-10 shadow-[0_0_15px_rgba(0,102,204,0.5)] hidden md:block"></div>
+                            <div class="w-full md:w-1/2 flex justify-start md:pl-16">
+                                <div class="text-left ios-card p-6 w-full max-w-lg">
+                                    <p class="text-5xl font-extrabold text-gray-900">2017</p>
+                                    <p class="text-2xl font-semibold mt-2 text-gray-800">DSVINA Factory</p>
+                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/dsvina-factory-completion.JPG" class="w-full h-auto rounded-xl mt-6 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=DSVINA+Factory';">
+                                    <p class="text-gray-500 mt-4">Secured global competitiveness through our Vietnam production base.</p>
                                 </div>
                             </div>
                         </div>
+
                         <!-- 2026 -->
-                         <div class="flex justify-center items-center w-full animate-up delay-300">
-                            <div class="w-full md:w-1/2 flex justify-end pr-8">
-                                <div class="bg-white p-6 rounded-lg shadow-lg w-full md:max-w-md">
-                                    <p class="text-right text-3xl font-bold text-gray-800">2026</p>
-                                    <p class="text-right text-lg font-semibold mt-1">Expansion into Indonesia</p>
-                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/indonesia - under construction.jpg" alt="Indonesia Factory" class="w-full h-auto rounded-md mt-4 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Indonesia+Factory';">
-                                    <p class="text-right text-gray-600 mt-2">Continuing growth by pioneering new markets, with land acquisition and factory construction currently in progress.</p>
+                         <div class="flex flex-col md:flex-row justify-center items-center w-full apple-reveal delay-300 relative">
+                            <div class="w-full md:w-1/2 flex justify-end md:pr-16 mb-8 md:mb-0">
+                                <div class="text-right ios-card p-6 w-full max-w-lg">
+                                    <p class="text-5xl font-extrabold text-gray-900">2026</p>
+                                    <p class="text-2xl font-semibold mt-2 text-gray-800">Expansion into Indonesia</p>
+                                    <!-- 인도네시아 사진 원하시는 파일로 적용됨 -->
+                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/indonesia%20-%20under%20construction.jpg" class="w-full h-auto rounded-xl mt-6 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Indonesia+Factory';">
+                                    <p class="text-gray-500 mt-4">Continuing growth by pioneering new markets, with factory construction currently in progress.</p>
                                 </div>
                             </div>
-                            <div class="w-10 h-10 bg-blue-600 rounded-full absolute left-1/2 -ml-5 flex items-center justify-center text-white font-bold z-10">3</div>
-                            <div class="w-full md:w-1/2"></div>
+                            <div class="w-6 h-6 bg-white border-4 border-[#34C759] rounded-full absolute left-1/2 -ml-3 z-10 shadow-[0_0_15px_rgba(52,199,89,0.5)] hidden md:block"></div>
+                            <div class="w-full md:w-1/2 hidden md:block"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SUSTAINABILITY / BLUESIGN & RCS SECTION -->
-        <section id="bluesign" class="py-20 md:py-32 flex items-center min-h-screen bg-gray-100">
+        <!-- SUSTAINABILITY (애플 스타일 다크섹션으로 강조) -->
+        <section id="bluesign" class="py-32 flex items-center min-h-screen bg-[#1D1D1F] text-white">
             <div class="container mx-auto px-6 text-center">
-                <div class="bg-white p-10 md:p-16 rounded-xl shadow-2xl animate-up">
-                    <div class="text-center">
-                        <div class="flex justify-center items-center space-x-6 md:space-x-12 mb-6 animate-up delay-100">
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/bluesign-logo-neg.jpg" alt="bluesign system partner" class="h-12 md:h-20" onerror="this.onerror=null;this.src='https://placehold.co/400x100/E0E7FF/3B82F6?text=Bluesign+Logo';">
-                            <!-- RCS 로고 이미지 링크를 아래 src에 넣어주세요 -->
-                            <img src="https://placehold.co/400x100/E0E7FF/3B82F6?text=RCS+Logo" alt="RCS Certification" class="h-12 md:h-20" onerror="this.onerror=null;this.src='https://placehold.co/400x100/E0E7FF/3B82F6?text=RCS+Logo';">
+                <div class="max-w-4xl mx-auto apple-reveal">
+                    <!-- 이미지가 아닌 텍스트로 RCS 강조, 블루사인 로고와 병치 -->
+                    <div class="flex flex-wrap justify-center items-center gap-8 mb-12 apple-reveal delay-100">
+                        <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/bluesign-logo-neg.jpg" class="h-12 md:h-16 bg-white p-2 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x100/FFFFFF/000000?text=bluesign';">
+                        <div class="px-6 py-3 border-2 border-white/20 rounded-xl text-3xl md:text-4xl font-extrabold tracking-widest text-white backdrop-blur-sm bg-white/5">
+                            RCS
                         </div>
-                        <p class="text-2xl md:text-5xl font-bold mb-4 animate-up delay-200">"Making a material, sustainable difference"</p>
-                        <p class="text-lg md:text-xl text-gray-700 max-w-4xl mx-auto animate-up delay-300">As a bluesign® system partner and RCS certified manufacturer, DUCKSAN creates products that are safe for both the environment and people, adhering to the independent standard for textile sustainability and recycled materials.</p>
                     </div>
+                    
+                    <p class="text-4xl md:text-6xl font-bold mb-8 leading-tight apple-reveal delay-200">"Making a material, <br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">sustainable difference.</span>"</p>
+                    <p class="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto font-light leading-relaxed apple-reveal delay-300">
+                        As a bluesign® system partner and RCS certified manufacturer, DUCKSAN creates products that are safe for both the environment and people.
+                    </p>
                 </div>
             </div>
         </section>
 
         <!-- PROCESS SECTION -->
-        <section id="process" class="py-20 md:py-32 flex items-center min-h-screen bg-white">
+        <section id="process" class="py-32 flex items-center min-h-screen bg-[#F5F5F7]">
             <div class="container mx-auto px-6">
-                <div class="text-center mb-12 animate-up">
-                    <h3 class="text-4xl md:text-5xl font-bold">Production Process</h3>
-                    <p class="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">DUCKSAN's innovation begins with state-of-the-art production facilities.</p>
+                <div class="text-center mb-16 apple-reveal">
+                    <h3 class="text-5xl font-bold tracking-tight text-gray-900">Precision in Every Thread.</h3>
+                    <p class="text-xl text-gray-500 mt-4">Explore our state-of-the-art production facilities.</p>
                 </div>
 
-                <div class="border-b border-gray-200 mb-8 animate-up delay-100">
-                    <nav class="flex justify-center -mb-px space-x-6 md:space-x-12" aria-label="Tabs">
-                        <button class="process-tab whitespace-nowrap py-4 px-1 text-base font-medium text-gray-500 hover:text-blue-600 active" data-target="tab-creation">Fabric Creation</button>
-                        <button class="process-tab whitespace-nowrap py-4 px-1 text-base font-medium text-gray-500 hover:text-blue-600" data-target="tab-treatment">Post-Processing</button>
+                <div class="flex justify-center mb-12 apple-reveal delay-100">
+                    <nav class="flex space-x-8 bg-white px-6 py-2 rounded-full shadow-sm" aria-label="Tabs">
+                        <button class="process-tab text-lg font-semibold text-gray-400 hover:text-gray-900 active" data-target="tab-creation">Fabric Creation</button>
+                        <button class="process-tab text-lg font-semibold text-gray-400 hover:text-gray-900" data-target="tab-treatment">Post-Processing</button>
                     </nav>
                 </div>
 
-                <div id="tab-creation" class="process-content active animate-up delay-200">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-                        <div class="machine-toggle-card bg-gray-50 p-6 rounded-lg shadow-lg" data-target="extruding-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/extruding-machine-equipment.jpg" data-images-product="">
-                            <h4 class="font-bold text-xl mb-2">Extruding Machine</h4>
-                            <p class="text-gray-600">Produces functional yarns like antimicrobial mesh using polypropylene chips. Created with a single pattern without separate warping or winding processes.</p>
-                            <p class="text-sm text-gray-500 mt-2">Click for more details & images</p>
+                <div id="tab-creation" class="process-content active apple-reveal delay-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                        <div class="ios-card p-8 machine-toggle-card cursor-pointer" data-target="extruding-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/extruding-machine-equipment.jpg" data-images-product="">
+                            <h4 class="font-extrabold text-2xl mb-3 text-gray-900">Extruding Machine</h4>
+                            <p class="text-gray-500 text-lg">Produces functional yarns like antimicrobial mesh using PP chips.</p>
                         </div>
-                        <div class="machine-toggle-card bg-gray-50 p-6 rounded-lg shadow-lg" data-target="warping-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/warping-machine-equipment.jpg" data-images-product="">
-                            <h4 class="font-bold text-xl mb-2">Warping Machine</h4>
-                            <p class="text-gray-600">Essential equipment for knitting and weaving processes, evenly winding yarn onto warp beams.</p>
-                            <p class="text-sm text-gray-500 mt-2">Click for more details & images</p>
+                        <div class="ios-card p-8 machine-toggle-card cursor-pointer" data-target="warping-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/warping-machine-equipment.jpg" data-images-product="">
+                            <h4 class="font-extrabold text-2xl mb-3 text-gray-900">Warping Machine</h4>
+                            <p class="text-gray-500 text-lg">Essential equipment for knitting, evenly winding yarn onto warp beams.</p>
                         </div>
-                        <div class="machine-toggle-card bg-gray-50 p-6 rounded-lg shadow-lg" data-target="warp-knitting-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/double-raschel-machine.jpg,https://github.com/LukeJEpark/Ducksan/raw/main/images/jqd-warp-knitting-machine.jpg" data-images-product="">
-                            <h4 class="font-bold text-xl mb-2">Warp Knitting & Jacquard</h4>
-                            <p class="text-gray-600">Utilizes advanced warp knitting and Jacquard machines to produce a wide range of fabrics with complex patterns and high elasticity.</p>
-                            <p class="text-sm text-gray-500 mt-2">Click for more details & images</p>
+                        <div class="ios-card p-8 machine-toggle-card cursor-pointer" data-target="warp-knitting-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/double-raschel-machine.jpg,https://github.com/LukeJEpark/Ducksan/raw/main/images/jqd-warp-knitting-machine.jpg" data-images-product="">
+                            <h4 class="font-extrabold text-2xl mb-3 text-gray-900">Warp Knitting & Jacquard</h4>
+                            <p class="text-gray-500 text-lg">Utilizes advanced machines for complex patterns and high elasticity.</p>
                         </div>
-                        <div class="machine-toggle-card bg-gray-50 p-6 rounded-lg shadow-lg" data-target="weaving-details">
-                            <h4 class="font-bold text-xl mb-2">Weaving Machine</h4>
-                            <p class="text-gray-600">Employs Mono looms and latest JQD looms to produce intricate and precise patterned fabrics.</p>
-                            <p class="text-sm text-gray-500 mt-2">Click for more details & images</p>
+                        <div class="ios-card p-8 machine-toggle-card cursor-pointer" data-target="weaving-details">
+                            <h4 class="font-extrabold text-2xl mb-3 text-gray-900">Weaving Machine</h4>
+                            <p class="text-gray-500 text-lg">Employs Mono & JQD looms to produce intricate patterned fabrics.</p>
                         </div>
                     </div>
                 </div>
 
                 <div id="tab-treatment" class="process-content">
-                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-                        <div class="machine-toggle-card bg-gray-50 p-6 rounded-lg shadow-lg" data-target="sputtering-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/sputtering-machine-equipment.jpg" data-images-product="">
-                            <h4 class="font-bold text-xl mb-2">Sputtering Machine</h4>
-                            <p class="text-gray-600">Applies metallic effect coatings to fabrics using an evaporation method, imparting unique textures and appearances.</p>
-                            <p class="text-sm text-gray-500 mt-2">Click for more details & images</p>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                        <div class="ios-card p-8 machine-toggle-card cursor-pointer" data-target="sputtering-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/sputtering-machine-equipment.jpg" data-images-product="">
+                            <h4 class="font-extrabold text-2xl mb-3 text-gray-900">Sputtering Machine</h4>
+                            <p class="text-gray-500 text-lg">Applies metallic effect coatings to fabrics using an evaporation method.</p>
                         </div>
                     </div>
                 </div>
@@ -348,70 +332,92 @@
         </section>
 
         <!-- STRENGTHS SECTION -->
-        <section id="strengths" class="py-20 md:py-32 flex items-center min-h-screen bg-gray-100">
+        <section id="strengths" class="py-32 flex items-center min-h-screen bg-white">
             <div class="container mx-auto px-6">
-                <div class="text-center mb-16 animate-up">
-                    <h3 class="text-4xl md:text-5xl font-bold">Core Strengths</h3>
-                    <p class="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">Why global brands partner with DUCKSAN.</p>
+                <div class="text-center mb-20 apple-reveal">
+                    <h3 class="text-5xl font-bold tracking-tight text-gray-900">Why DUCKSAN.</h3>
+                    <p class="text-xl text-gray-500 mt-4">The core pillars of our global partnerships.</p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- 친환경/블루사인 + RCS -->
-                    <div class="strength-card bg-white p-8 rounded-xl text-center shadow-lg animate-up delay-100" data-title="Eco-Friendly & Sustainability" data-description="Guarantees sustainable and reliable quality through international certifications like bluesign® and RCS (Recycled Claim Standard)." data-emoji="🍃">
-                        <div class="text-4xl text-blue-600 mb-4">🍃</div>
-                        <h4 class="font-bold text-xl mb-2">Sustainability</h4>
-                        <p class="text-gray-600">Guarantees eco-friendly processes via bluesign® & RCS certifications.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+                    <!-- 친환경 (RCS 텍스트 반영) -->
+                    <div class="strength-card bg-[#F5F5F7] p-10 rounded-[30px] text-left apple-reveal delay-100" data-title="Eco-Friendly & Sustainability" data-description="Guarantees sustainable processes through bluesign® and RCS (Recycled Claim Standard) certifications." data-emoji="🍃">
+                        <div class="text-5xl mb-6">🍃</div>
+                        <h4 class="font-bold text-2xl mb-3 text-gray-900">Sustainability</h4>
+                        <p class="text-gray-600 text-lg leading-relaxed">Guarantees eco-friendly processes via bluesign® & RCS certifications.</p>
                     </div>
                     <!-- 개발 역량 -->
-                    <div class="strength-card bg-white p-8 rounded-xl text-center shadow-lg animate-up delay-200" data-title="Creative R&D Capability" data-description="Provides customized fabric development and trend-setting ideas." data-emoji="💡">
-                        <div class="text-4xl text-blue-600 mb-4">💡</div>
-                        <h4 class="font-bold text-xl mb-2">Creative R&D Capability</h4>
-                        <p class="text-gray-600">Provides customized fabric development and trend-setting ideas.</p>
+                    <div class="strength-card bg-[#F5F5F7] p-10 rounded-[30px] text-left apple-reveal delay-200" data-title="Creative R&D Capability" data-description="Provides customized fabric development and trend-setting ideas." data-emoji="💡">
+                        <div class="text-5xl mb-6">💡</div>
+                        <h4 class="font-bold text-2xl mb-3 text-gray-900">Creative R&D</h4>
+                        <p class="text-gray-600 text-lg leading-relaxed">Provides customized fabric development and trend-setting ideas.</p>
                     </div>
                     <!-- 글로벌 네트워크 -->
-                    <div id="global-network-card" class="strength-card bg-white p-8 rounded-xl text-center shadow-lg animate-up delay-300">
-                        <div class="text-4xl text-blue-600 mb-4">🌍</div>
-                        <h4 class="font-bold text-xl mb-2">Global Network</h4>
-                        <p class="text-gray-600">Connects with customers worldwide through sites in Korea, Vietnam, and Indonesia.</p>
+                    <div id="global-network-card" class="strength-card bg-[#F5F5F7] p-10 rounded-[30px] text-left apple-reveal delay-300">
+                        <div class="text-5xl mb-6">🌍</div>
+                        <h4 class="font-bold text-2xl mb-3 text-gray-900">Global Network</h4>
+                        <p class="text-gray-600 text-lg leading-relaxed">Connects with customers worldwide through sites in Korea, Vietnam, and Indonesia.</p>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="bg-gray-800 text-white py-8">
+    <footer class="bg-[#1D1D1F] text-white py-12">
         <div class="container mx-auto px-6 text-center">
-            <p>&copy; 2026 DUCKSAN Co., Ltd. All Rights Reserved.</p>
-            <p class="text-sm text-gray-400 mt-2">The Professional of Fabric</p>
+            <p class="font-medium">&copy; 2026 DUCKSAN Co., Ltd. All Rights Reserved.</p>
+            <p class="text-sm text-gray-500 mt-2">The Professional of Fabric</p>
         </div>
     </footer>
 
     <!-- Modals -->
-    <div id="full-screen-modal" class="modal-overlay">
+    <div id="full-screen-modal" class="modal-overlay flex">
         <div id="modal-content" class="modal-content">
-            <button id="modal-close-button" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 focus:outline-none">
+            <button id="modal-close-button" class="absolute top-6 right-6 p-2 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 transition-colors focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <div id="modal-body" class="p-4"></div>
+            <div id="modal-body" class="p-2"></div>
         </div>
     </div>
 
-    <div id="image-modal-overlay" class="image-overlay">
-        <div id="image-modal-content" class="image-modal-content">
-            <button id="image-modal-close-button" class="absolute top-4 right-4 text-white hover:text-gray-300 focus:outline-none">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <!-- 이미지 모달 -->
+    <div id="image-modal-overlay" class="modal-overlay flex">
+        <div id="image-modal-content" class="modal-content !bg-transparent !shadow-none !p-0">
+            <button id="image-modal-close-button" class="absolute -top-12 right-0 p-2 text-white hover:text-gray-300 transition-colors focus:outline-none">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <img id="image-modal-img" src="" alt="Full-screen image">
+            <img id="image-modal-img" src="" alt="Full-screen image" class="rounded-xl shadow-2xl border border-white/10">
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Mobile Menu
+            
+            // 🌟 1. 애니메이션 트리거 (Intersection Observer) 🌟
+            // threshold와 rootMargin을 조정하여 화면에 살짝만 보여도 스르륵 나타나게 함
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px 0px -10% 0px',
+                threshold: 0.1
+            };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.apple-reveal, .timeline-container').forEach(section => {
+                observer.observe(section);
+            });
+
+
+            // 모바일 메뉴
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenuButton.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
 
-            // Process Tabs
+            // 공정 탭 로직
             const processTabs = document.querySelectorAll('.process-tab');
             const processContents = document.querySelectorAll('.process-content');
             processTabs.forEach(tab => {
@@ -427,7 +433,7 @@
                     const targetContent = document.getElementById(targetContentId);
                     setTimeout(() => {
                         targetContent.classList.add('active');
-                        targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                        targetContent.style.maxHeight = targetContent.scrollHeight + 100 + 'px';
                         targetContent.style.opacity = '1';
                     }, 50);
                 });
@@ -435,17 +441,17 @@
             if (processTabs.length > 0) {
                 const initialTargetContent = document.getElementById(processTabs[0].dataset.target);
                 initialTargetContent.classList.add('active');
-                initialTargetContent.style.maxHeight = initialTargetContent.scrollHeight + 'px';
+                initialTargetContent.style.maxHeight = initialTargetContent.scrollHeight + 100 + 'px';
                 initialTargetContent.style.opacity = '1';
             }
 
-            // Site Details Toggle
+            // 지점 자세히보기 토글
             const siteToggleCard = document.getElementById('site-toggle-card');
             const siteDetailsContainer = document.getElementById('site-details-container');
             siteToggleCard.addEventListener('click', () => {
                 siteDetailsContainer.classList.toggle('expanded');
                 if (siteDetailsContainer.classList.contains('expanded')) {
-                    siteDetailsContainer.style.maxHeight = siteDetailsContainer.scrollHeight + 'px';
+                    siteDetailsContainer.style.maxHeight = siteDetailsContainer.scrollHeight + 200 + 'px';
                     siteDetailsContainer.style.opacity = '1';
                 } else {
                     siteDetailsContainer.style.maxHeight = '0px';
@@ -453,10 +459,11 @@
                 }
             });
 
-            // Modals Logic
+            // 모달 공통 로직
             const modalOverlay = document.getElementById('full-screen-modal');
             const modalCloseButton = document.getElementById('modal-close-button');
             const modalBody = document.getElementById('modal-body');
+            
             const imageModalOverlay = document.getElementById('image-modal-overlay');
             const imageModalCloseButton = document.getElementById('image-modal-close-button');
             const imageModalImg = document.getElementById('image-modal-img');
@@ -464,10 +471,10 @@
             function openModal(contentHtml) {
                 modalBody.innerHTML = contentHtml;
                 modalOverlay.style.display = 'flex';
-                setTimeout(() => {
-                    modalOverlay.classList.add('active');
-                    attachImageClickListeners();
-                }, 10);
+                // 강제 리플로우
+                modalOverlay.offsetHeight; 
+                modalOverlay.classList.add('active');
+                attachImageClickListeners();
             }
             function closeModal() {
                 modalOverlay.classList.remove('active');
@@ -482,7 +489,8 @@
             function openImageModal(src) {
                 imageModalImg.src = src;
                 imageModalOverlay.style.display = 'flex';
-                setTimeout(() => { imageModalOverlay.classList.add('active'); }, 10);
+                imageModalOverlay.offsetHeight;
+                imageModalOverlay.classList.add('active');
             }
             function closeImageModal() {
                 imageModalOverlay.classList.remove('active');
@@ -498,6 +506,7 @@
                 const images = modalBody.querySelectorAll('img');
                 images.forEach(img => {
                     img.style.cursor = 'pointer';
+                    img.classList.add('hover:opacity-80', 'transition-opacity');
                     img.addEventListener('click', (e) => {
                         e.stopPropagation();
                         openImageModal(img.src);
@@ -505,9 +514,8 @@
                 });
             }
 
-            // Cards Logic (🚨 상세 HTML 코드를 축약 없이 완벽하게 복구했습니다 🚨)
-            const machineToggleCards = document.querySelectorAll('.machine-toggle-card');
-            machineToggleCards.forEach(card => {
+            // 기계 장비 카드 클릭 로직 (상세 내용 원본 유지)
+            document.querySelectorAll('.machine-toggle-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const title = card.querySelector('h4').textContent;
                     const description = card.querySelector('p').textContent;
@@ -515,48 +523,48 @@
                     let modalHtml = '';
                     if (card.dataset.target === 'weaving-details') {
                          modalHtml = `
-                            <h3 class="text-3xl font-bold mb-4">Weaving Machine</h3>
-                            <p class="text-gray-700 mb-6">Our weaving machines enable us to create intricate and precise patterned fabrics with superior strength and durability, meeting the highest standards for various industrial and consumer applications.</p>
+                            <h3 class="text-4xl font-bold mb-4 text-gray-900">Weaving Machine</h3>
+                            <p class="text-gray-600 text-lg mb-8">Our weaving machines enable us to create intricate and precise patterned fabrics with superior strength and durability, meeting the highest standards for various industrial and consumer applications.</p>
                             
-                            <div class="mt-8">
-                                <h4 class="text-2xl font-bold mb-4">Mono / Woven</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="mt-8 bg-[#F5F5F7] p-8 rounded-[24px]">
+                                <h4 class="text-2xl font-bold mb-6 text-gray-900">Mono / Woven</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div>
-                                        <h5 class="font-semibold text-lg mb-2">Machine Equipment</h5>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-loom-operation.jpg" alt="Mono Loom Operation" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Mono+Loom+Equipment';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">Mono Loom in operation</figcaption>
+                                        <h5 class="font-semibold text-lg mb-4 text-gray-700">Machine Equipment</h5>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-loom-operation.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Mono+Loom+Equipment';">
+                                            <figcaption class="text-sm text-gray-500">Mono Loom in operation</figcaption>
                                         </figure>
                                     </div>
                                     <div>
-                                        <h5 class="font-semibold text-lg mb-2">Product Images</h5>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-product.jpg" alt="Mono Product" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Mono+Product';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">Example of Mono fabric product</figcaption>
+                                        <h5 class="font-semibold text-lg mb-4 text-gray-700">Product Images</h5>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center mb-6">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-product.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Mono+Product';">
+                                            <figcaption class="text-sm text-gray-500">Example of Mono fabric product</figcaption>
                                         </figure>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center mt-4">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-fabric.jpg" alt="Mono Fabric" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Mono+Fabric';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">Example of Mono fabric pattern</figcaption>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-fabric.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Mono+Fabric';">
+                                            <figcaption class="text-sm text-gray-500">Example of Mono fabric pattern</figcaption>
                                         </figure>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="mt-8">
-                                <h4 class="text-2xl font-bold mb-4">Jacquard Mono / Woven</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="mt-8 bg-[#F5F5F7] p-8 rounded-[24px]">
+                                <h4 class="text-2xl font-bold mb-6 text-gray-900">Jacquard Mono / Woven</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div>
-                                        <h5 class="font-semibold text-lg mb-2">Machine Equipment</h5>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/weaving-machine-r9500.jpg" alt="Jacquard Weaving Machine" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Jacquard+Machine+Equipment';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">JQD Jacquard Weaving Machine</figcaption>
+                                        <h5 class="font-semibold text-lg mb-4 text-gray-700">Machine Equipment</h5>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/weaving-machine-r9500.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Jacquard+Machine+Equipment';">
+                                            <figcaption class="text-sm text-gray-500">JQD Jacquard Weaving Machine</figcaption>
                                         </figure>
                                     </div>
                                     <div>
-                                        <h5 class="font-semibold text-lg mb-2">Product Images</h5>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-jacquard.jpg" alt="Jacquard Product" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Jacquard+Product';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">Example of Jacquard woven fabric</figcaption>
+                                        <h5 class="font-semibold text-lg mb-4 text-gray-700">Product Images</h5>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-jacquard.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Jacquard+Product';">
+                                            <figcaption class="text-sm text-gray-500">Example of Jacquard woven fabric</figcaption>
                                         </figure>
                                     </div>
                                 </div>
@@ -564,44 +572,44 @@
                         `;
                     } else if (card.dataset.target === 'warp-knitting-details') {
                         modalHtml = `
-                            <h3 class="text-3xl font-bold mb-4">Warp Knitting & Jacquard</h3>
-                            <p class="text-gray-700 mb-6">Our advanced warp knitting machines, including Double Raschel and Jacquard models, enable us to produce a wide range of specialized fabrics. This technology allows for complex patterns, high elasticity, and excellent dimensional stability, catering to diverse industry needs.</p>
+                            <h3 class="text-4xl font-bold mb-4 text-gray-900">Warp Knitting & Jacquard</h3>
+                            <p class="text-gray-600 text-lg mb-8">Our advanced warp knitting machines, including Double Raschel and Jacquard models, enable us to produce a wide range of specialized fabrics. This technology allows for complex patterns, high elasticity, and excellent dimensional stability.</p>
                             
-                            <div class="mt-8">
-                                <h4 class="text-2xl font-bold mb-4">Warp Knit</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="mt-8 bg-[#F5F5F7] p-8 rounded-[24px]">
+                                <h4 class="text-2xl font-bold mb-6 text-gray-900">Warp Knit</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div>
-                                        <h5 class="font-semibold text-lg mb-2">Machine Equipment</h5>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/double-raschel-machine.jpg" alt="Double Raschel Machine" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Double+Raschel+Machine';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">Double Raschel machine in operation</figcaption>
+                                        <h5 class="font-semibold text-lg mb-4 text-gray-700">Machine Equipment</h5>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/double-raschel-machine.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Double+Raschel+Machine';">
+                                            <figcaption class="text-sm text-gray-500">Double Raschel machine in operation</figcaption>
                                         </figure>
                                     </div>
                                     <div>
-                                        <h5 class="font-semibold text-lg mb-2">Product Images</h5>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/warp-knit-fabric-product.jpg" alt="Warp Knit Fabric" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Warp+Knit+Product';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">Sample of warp knit fabric</figcaption>
+                                        <h5 class="font-semibold text-lg mb-4 text-gray-700">Product Images</h5>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/warp-knit-fabric-product.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Warp+Knit+Product';">
+                                            <figcaption class="text-sm text-gray-500">Sample of warp knit fabric</figcaption>
                                         </figure>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="mt-8">
-                                <h4 class="text-2xl font-bold mb-4">Jacquard</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="mt-8 bg-[#F5F5F7] p-8 rounded-[24px]">
+                                <h4 class="text-2xl font-bold mb-6 text-gray-900">Jacquard</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div>
-                                        <h5 class="font-semibold text-lg mb-2">Machine Equipment</h5>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/jqd-warp-knitting-machine.jpg" alt="JQD Warp Knitting Machine" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=JQD+Machine+Equipment';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">JQD Warp Knitting machine for complex patterns</figcaption>
+                                        <h5 class="font-semibold text-lg mb-4 text-gray-700">Machine Equipment</h5>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/jqd-warp-knitting-machine.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=JQD+Machine+Equipment';">
+                                            <figcaption class="text-sm text-gray-500">JQD Warp Knitting machine</figcaption>
                                         </figure>
                                     </div>
                                     <div>
-                                        <h5 class="font-semibold text-lg mb-2">Product Images</h5>
-                                        <figure class="bg-gray-100 p-4 rounded-lg shadow-sm text-center">
-                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/warp-knit-jacquard-product.jpg" alt="Jacquard Product" class="w-full h-auto rounded-md mb-2 cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Jacquard+Product';">
-                                            <figcaption class="text-sm text-gray-700 mt-2">Example of Jacquard woven fabric</figcaption>
+                                        <h5 class="font-semibold text-lg mb-4 text-gray-700">Product Images</h5>
+                                        <figure class="bg-white p-4 rounded-[16px] shadow-sm text-center">
+                                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/warp-knit-jacquard-product.jpg" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Jacquard+Product';">
+                                            <figcaption class="text-sm text-gray-500">Example of Jacquard woven fabric</figcaption>
                                         </figure>
                                     </div>
                                 </div>
@@ -613,23 +621,23 @@
 
                         let imageHtml = '';
                         if (machineImages.length > 0) {
-                            imageHtml += `<h5 class="font-semibold text-lg mb-4">Machine Equipment</h5><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">`;
+                            imageHtml += `<div class="bg-[#F5F5F7] p-8 rounded-[24px] mt-8"><h5 class="font-bold text-xl mb-6 text-gray-900">Machine Equipment</h5><div class="grid grid-cols-1 sm:grid-cols-2 gap-6">`;
                             machineImages.forEach(src => {
-                                imageHtml += `<figure class="bg-gray-100 p-2 rounded-lg shadow-sm text-center"><img src="${src}" alt="" class="w-full h-auto rounded-md cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Image+Not+Found';"><figcaption class="text-sm text-gray-700 mt-2">Equipment for ${title}</figcaption></figure>`;
+                                imageHtml += `<figure class="bg-white p-4 rounded-[16px] shadow-sm text-center"><img src="${src}" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Image+Not+Found';"><figcaption class="text-sm text-gray-500">Equipment for ${title}</figcaption></figure>`;
                             });
-                            imageHtml += `</div>`;
+                            imageHtml += `</div></div>`;
                         }
                         if (productImages.length > 0) {
-                             imageHtml += `<h5 class="font-semibold text-lg mt-8 mb-4">Product Images</h5><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">`;
+                             imageHtml += `<div class="bg-[#F5F5F7] p-8 rounded-[24px] mt-8"><h5 class="font-bold text-xl mb-6 text-gray-900">Product Images</h5><div class="grid grid-cols-1 sm:grid-cols-2 gap-6">`;
                             productImages.forEach(src => {
-                                imageHtml += `<figure class="bg-gray-100 p-2 rounded-lg shadow-sm text-center"><img src="${src}" alt="" class="w-full h-auto rounded-md cursor-pointer" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Image+Not+Found';"><figcaption class="text-sm text-gray-700 mt-2">Product from ${title}</figcaption></figure>`;
+                                imageHtml += `<figure class="bg-white p-4 rounded-[16px] shadow-sm text-center"><img src="${src}" class="w-full h-auto rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Image+Not+Found';"><figcaption class="text-sm text-gray-500">Product from ${title}</figcaption></figure>`;
                             });
-                            imageHtml += `</div>`;
+                            imageHtml += `</div></div>`;
                         }
                         
                         modalHtml = `
-                            <h3 class="text-3xl font-bold mb-4">${title}</h3>
-                            <p class="text-gray-700 mb-6">${description}</p>
+                            <h3 class="text-4xl font-bold mb-4 text-gray-900">${title}</h3>
+                            <p class="text-gray-600 text-lg">${description}</p>
                             ${imageHtml}
                         `;
                     }
@@ -637,38 +645,31 @@
                 });
             });
 
+            // 핵심 역량(Strength) 카드 클릭 로직
             document.querySelectorAll('.strength-card').forEach(card => {
                 if (card.id === 'global-network-card') {
                     card.addEventListener('click', () => {
                         document.getElementById('about').scrollIntoView({behavior: 'smooth'});
                         setTimeout(() => {
                             siteDetailsContainer.classList.add('expanded');
-                            siteDetailsContainer.style.maxHeight = siteDetailsContainer.scrollHeight + 'px';
+                            siteDetailsContainer.style.maxHeight = siteDetailsContainer.scrollHeight + 200 + 'px';
                             siteDetailsContainer.style.opacity = '1';
-                        }, 500); 
+                        }, 800); 
                     });
                 } else {
                     card.addEventListener('click', () => {
                         const title = card.dataset.title;
                         const description = card.dataset.description;
                         const emoji = card.dataset.emoji;
-                        openModal(`<div class="text-center"><div class="text-6xl mb-4">${emoji}</div><h3 class="text-3xl font-bold mb-2">${title}</h3><p class="text-gray-700">${description}</p></div>`);
+                        openModal(`
+                            <div class="text-center py-8">
+                                <div class="text-7xl mb-8">${emoji}</div>
+                                <h3 class="text-4xl font-extrabold mb-4 text-gray-900">${title}</h3>
+                                <p class="text-gray-500 text-xl max-w-lg mx-auto leading-relaxed">${description}</p>
+                            </div>
+                        `);
                     });
                 }
-            });
-
-            // 🌟 Intersection Observer for Staggered Animations 🌟
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            // .animate-up 클래스와 .timeline-container에 애니메이션 감지 적용
-            document.querySelectorAll('.animate-up, .timeline-container').forEach(section => {
-                observer.observe(section);
             });
         });
     </script>
