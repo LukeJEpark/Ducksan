@@ -11,42 +11,42 @@
     <style>
         body {
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
-            background-color: #F9F9FB; /* 고급스러운 오프화이트 베이스 */
+            background-color: #F9F9FB; 
             color: #111827;
-            overflow: hidden; /* 🌟 메인 스크롤 제거 (SPA 구조) */
+            overflow: hidden; /* 메인 스크롤 제거 (SPA 구조) */
         }
 
-        /* 🌟 1. 앱 스타일 화면 전환 CSS 🌟 */
+        /* 🌟 앱 스타일 화면 전환 CSS */
         .page-section {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100dvh;
             overflow-y: auto; overflow-x: hidden;
             background-color: #F9F9FB;
-            padding-top: 80px; /* 헤더 공간 확보 */
+            padding-top: 80px; 
             padding-bottom: 60px;
             transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.7s ease;
             z-index: 10;
         }
         
         .page-section.hidden-right {
-            transform: translateX(100%); /* 오른쪽에 대기 */
+            transform: translateX(100%);
             opacity: 0;
             pointer-events: none;
         }
         .page-section.hidden-left {
-            transform: translateX(-20%); /* 왼쪽으로 살짝 밀리며 퇴장 (패럴랙스) */
+            transform: translateX(-20%);
             opacity: 0;
             pointer-events: none;
         }
         .page-section.active {
-            transform: translateX(0); /* 정중앙 활성화 */
+            transform: translateX(0);
             opacity: 1;
             z-index: 20;
             pointer-events: auto;
         }
 
-        /* 🌟 2. 부드럽고 탄력있는 내부 등장 애니메이션 */
+        /* 🌟 등장 애니메이션 */
         .dynamic-reveal {
             opacity: 0;
             transform: translateY(40px) scale(0.98);
@@ -60,7 +60,7 @@
         .delay-200 { transition-delay: 200ms; }
         .delay-300 { transition-delay: 300ms; }
 
-        /* 프리미엄 카드 스타일 */
+        /* 프리미엄 카드 */
         .premium-card {
             background: #ffffff;
             border-radius: 24px;
@@ -85,7 +85,7 @@
         .nav-link.active { color: #2563EB; }
         .nav-link.active::after { width: 100%; }
 
-        /* 탭 버튼 스타일 */
+        /* 탭 버튼 */
         .process-tab {
             cursor: pointer; padding: 0.75rem 2rem; border-radius: 9999px; color: #6B7280; font-weight: 600; transition: all 0.3s ease;
         }
@@ -97,7 +97,7 @@
         }
         .process-content.active { max-height: 5000px; opacity: 1; transform: translateY(0); }
 
-        /* 확장 컨테이너 애니메이션 */
+        /* 지도 확장 애니메이션 */
         .site-details-container {
             max-height: 0; overflow: hidden; opacity: 0; transform: scaleY(0.95); transform-origin: top;
             transition: max-height 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, transform 0.5s ease;
@@ -108,7 +108,7 @@
         .timeline-line { height: 0; background: #2563EB; transition: height 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
         .page-section.active .timeline-line { height: 100%; }
 
-        /* 🌟 서브 패널 (Drawer) 🌟 */
+        /* 🌟 서브 패널 (Drawer) */
         .panel-overlay {
             position: fixed; inset: 0; background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(4px);
             z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
@@ -154,7 +154,6 @@
                 </button>
             </div>
         </nav>
-        <!-- 모바일 메뉴 -->
         <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 flex-col shadow-lg z-[60]">
             <a href="#about" data-link="about" class="nav-link-mobile block py-3 px-6 text-gray-600 hover:bg-gray-50 border-b">Overview</a>
             <a href="#history" data-link="history" class="nav-link-mobile block py-3 px-6 text-gray-600 hover:bg-gray-50 border-b">History</a>
@@ -164,12 +163,11 @@
         </div>
     </header>
 
-    <!-- 🌟 메인 컨테이너 (화면들이 여기서 교차됨) 🌟 -->
     <main class="relative w-full h-[100dvh] overflow-hidden">
         
-        <!-- PAGE 1: ABOUT (OVERVIEW) -->
+        <!-- PAGE 1: ABOUT -->
         <section id="about" class="page-section active">
-            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-140px)] flex flex-col justify-center">
+            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-140px)] flex flex-col justify-center py-10">
                 <h2 class="text-5xl md:text-8xl font-black tracking-tighter text-gray-900 dynamic-reveal mb-6">
                     The Professional<br>of Fabric.
                 </h2>
@@ -182,9 +180,10 @@
                         <p class="text-5xl md:text-6xl font-black text-blue-600 mb-2">1988</p>
                         <p class="text-gray-500 font-semibold text-lg">Founded</p>
                     </div>
+                    <!-- 🌟 2026년 타겟으로 수정 🌟 -->
                     <div class="premium-card p-10 dynamic-reveal delay-200 text-center">
                         <p class="text-5xl md:text-6xl font-black text-blue-600 mb-2">$100M</p>
-                        <p class="text-gray-500 font-semibold text-lg">2025 Target</p>
+                        <p class="text-gray-500 font-semibold text-lg">2026 Target</p>
                     </div>
                     <div id="site-toggle-card" class="premium-card p-10 dynamic-reveal delay-300 text-center group">
                         <p class="text-5xl md:text-6xl font-black text-blue-600 mb-2 group-hover:scale-110 transition-transform duration-300">4+</p>
@@ -193,7 +192,6 @@
                     </div>
                 </div>
                 
-                <!-- 확장 맵 -->
                 <div id="site-details-container" class="site-details-container mt-8 bg-white p-10 rounded-[32px] shadow-xl text-left border border-gray-100">
                     <h3 class="text-3xl font-bold text-gray-900 mb-8">Our Global Presence</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -222,58 +220,63 @@
             </div>
         </section>
 
-        <!-- PAGE 2: HISTORY -->
+        <!-- 🌟 PAGE 2: HISTORY (좌우로 넓게 개편) 🌟 -->
         <section id="history" class="page-section hidden-right">
-            <div class="container mx-auto px-6 min-h-[calc(100vh-140px)] flex flex-col justify-center py-10">
-                <div class="text-center mb-16 dynamic-reveal">
+            <!-- 폭을 max-w-4xl 에서 w-full max-w-7xl 로 늘림 -->
+            <div class="container mx-auto px-6 min-h-[calc(100vh-140px)] flex flex-col justify-start py-20 w-full max-w-7xl">
+                <div class="text-center mb-20 dynamic-reveal">
                     <h2 class="text-5xl font-extrabold text-gray-900">History.</h2>
                 </div>
                 
-                <div class="relative timeline-container max-w-4xl mx-auto dynamic-reveal delay-100">
+                <div class="relative timeline-container w-full mx-auto dynamic-reveal delay-100">
                     <!-- 중앙 선 -->
-                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-gray-200 rounded-full overflow-hidden hidden md:block">
+                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-[3px] h-full bg-gray-200 rounded-full overflow-hidden hidden md:block">
                         <div class="timeline-line w-full rounded-full"></div>
                     </div>
                     
-                    <div class="space-y-16 pb-20">
+                    <div class="space-y-24 pb-20">
                         <!-- 1988 -->
                         <div class="relative flex flex-col md:flex-row justify-center items-center w-full dynamic-reveal delay-100">
-                            <div class="w-full md:w-1/2 flex md:justify-end md:pr-12 mb-6 md:mb-0">
-                                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 w-full max-w-sm text-left md:text-right">
-                                    <h4 class="text-4xl font-black text-gray-900 mb-2">1988</h4>
-                                    <p class="text-xl font-bold text-blue-600">DUCKSAN Established</p>
-                                    <p class="text-gray-500 mt-2">Took the first great step towards the textile industry.</p>
+                            <!-- 간격을 벌리기 위해 pr-12 -> pr-20 으로 변경 -->
+                            <div class="w-full md:w-1/2 flex md:justify-end md:pr-20 mb-6 md:mb-0">
+                                <!-- 카드 폭 제한 완화 (max-w-sm -> max-w-lg), 내부 여백 증대 -->
+                                <div class="bg-white p-10 rounded-[32px] shadow-lg border border-gray-100 w-full max-w-lg text-left md:text-right hover:-translate-y-2 transition-transform duration-300">
+                                    <h4 class="text-5xl font-black text-gray-900 mb-3">1988</h4>
+                                    <p class="text-2xl font-bold text-blue-600">DUCKSAN Established</p>
+                                    <p class="text-gray-500 mt-3 text-lg leading-relaxed">Took the first great step towards the textile industry.</p>
                                 </div>
                             </div>
-                            <div class="w-4 h-4 bg-blue-600 ring-4 ring-blue-100 rounded-full absolute left-1/2 -ml-2 z-10 hidden md:block"></div>
+                            <div class="w-5 h-5 bg-blue-600 ring-4 ring-blue-100 rounded-full absolute left-1/2 transform -translate-x-1/2 z-10 hidden md:block shadow-md"></div>
                             <div class="w-full md:w-1/2"></div>
                         </div>
                         
                         <!-- 2017 -->
                         <div class="relative flex flex-col md:flex-row justify-center items-center w-full dynamic-reveal delay-200">
                              <div class="w-full md:w-1/2 hidden md:block"></div>
-                             <div class="w-4 h-4 bg-blue-600 ring-4 ring-blue-100 rounded-full absolute left-1/2 -ml-2 z-10 hidden md:block"></div>
-                            <div class="w-full md:w-1/2 flex justify-start md:pl-12">
-                                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 w-full max-w-sm">
-                                    <h4 class="text-4xl font-black text-gray-900 mb-2">2017</h4>
-                                    <p class="text-xl font-bold text-blue-600">DSVINA Factory</p>
-                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/dsvina-factory-completion.JPG" class="w-full h-32 object-cover rounded-xl mt-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Vietnam';">
-                                    <p class="text-gray-500 mt-4">Secured global competitiveness through our Vietnam base.</p>
+                             <div class="w-5 h-5 bg-blue-600 ring-4 ring-blue-100 rounded-full absolute left-1/2 transform -translate-x-1/2 z-10 hidden md:block shadow-md"></div>
+                            <!-- 간격을 벌리기 위해 pl-12 -> pl-20 으로 변경 -->
+                            <div class="w-full md:w-1/2 flex justify-start md:pl-20">
+                                <div class="bg-white p-10 rounded-[32px] shadow-lg border border-gray-100 w-full max-w-lg hover:-translate-y-2 transition-transform duration-300">
+                                    <h4 class="text-5xl font-black text-gray-900 mb-3">2017</h4>
+                                    <p class="text-2xl font-bold text-blue-600">DSVINA Factory</p>
+                                    <!-- 이미지 사이즈 증대 -->
+                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/dsvina-factory-completion.JPG" class="w-full h-56 object-cover rounded-2xl mt-6" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Vietnam';">
+                                    <p class="text-gray-500 mt-5 text-lg leading-relaxed">Secured global competitiveness through our Vietnam base.</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 2026 -->
                         <div class="relative flex flex-col md:flex-row justify-center items-center w-full dynamic-reveal delay-300">
-                            <div class="w-full md:w-1/2 flex justify-end md:pr-12 mb-6 md:mb-0">
-                                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 w-full max-w-sm text-left md:text-right">
-                                    <h4 class="text-4xl font-black text-gray-900 mb-2">2026</h4>
-                                    <p class="text-xl font-bold text-blue-600">Expansion into Indonesia</p>
-                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/indonesia%20-%20under%20construction.jpg" class="w-full h-32 object-cover rounded-xl mt-4" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Indonesia';">
-                                    <p class="text-gray-500 mt-4">Pioneering new markets with ongoing factory construction.</p>
+                            <div class="w-full md:w-1/2 flex md:justify-end md:pr-20 mb-6 md:mb-0">
+                                <div class="bg-white p-10 rounded-[32px] shadow-lg border border-gray-100 w-full max-w-lg text-left md:text-right hover:-translate-y-2 transition-transform duration-300">
+                                    <h4 class="text-5xl font-black text-gray-900 mb-3">2026</h4>
+                                    <p class="text-2xl font-bold text-blue-600">Expansion into Indonesia</p>
+                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/indonesia%20-%20under%20construction.jpg" class="w-full h-56 object-cover rounded-2xl mt-6" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Indonesia';">
+                                    <p class="text-gray-500 mt-5 text-lg leading-relaxed">Pioneering new markets with ongoing factory construction.</p>
                                 </div>
                             </div>
-                            <div class="w-4 h-4 bg-green-500 ring-4 ring-green-100 rounded-full absolute left-1/2 -ml-2 z-10 hidden md:block"></div>
+                            <div class="w-5 h-5 bg-green-500 ring-4 ring-green-100 rounded-full absolute left-1/2 transform -translate-x-1/2 z-10 hidden md:block shadow-md"></div>
                             <div class="w-full md:w-1/2"></div>
                         </div>
                     </div>
@@ -384,7 +387,7 @@
         </section>
     </main>
 
-    <!-- 🌟 우측 서브 패널 (상세내용 팝업) 🌟 -->
+    <!-- 🌟 우측 서브 패널 (상세내용 Drawer) 🌟 -->
     <div id="panel-overlay" class="panel-overlay"></div>
     <div id="side-panel" class="side-panel">
         <button id="panel-close-btn" class="absolute top-6 right-6 p-2 bg-gray-100 rounded-full text-gray-900 hover:bg-gray-200 transition-colors">
@@ -406,12 +409,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
-            // 🌟 1. 앱 스타일 화면 전환 (라우팅) 로직 🌟
+            // 앱 스타일 화면 전환 로직
             const navLinks = document.querySelectorAll('[data-link]');
             const pages = document.querySelectorAll('.page-section');
             const mobileMenu = document.getElementById('mobile-menu');
 
-            // 초기 애니메이션 강제 트리거 (About 페이지)
             setTimeout(() => {
                 document.getElementById('about').querySelectorAll('.dynamic-reveal').forEach(el => el.classList.add('is-visible'));
             }, 100);
@@ -421,23 +423,18 @@
                     e.preventDefault();
                     const targetId = link.getAttribute('data-link');
                     
-                    // 데스크탑 메뉴 활성화 표시
                     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                     const deskLink = document.querySelector(`.nav-link[data-link="${targetId}"]`);
                     if(deskLink) deskLink.classList.add('active');
 
-                    // 모바일 메뉴 닫기
                     mobileMenu.classList.add('hidden');
 
-                    // 화면 슬라이드 로직
                     pages.forEach(page => {
                         if (page.id === targetId) {
-                            // 타겟 페이지 등장
                             page.classList.remove('hidden-right', 'hidden-left');
                             page.classList.add('active');
-                            page.scrollTop = 0; // 최상단으로 리셋
+                            page.scrollTop = 0; 
                             
-                            // 내부 애니메이션 리셋 및 재실행 (쫀득하게 다시 튀어나옴)
                             const reveals = page.querySelectorAll('.dynamic-reveal');
                             reveals.forEach(el => el.classList.remove('is-visible'));
                             setTimeout(() => {
@@ -445,11 +442,9 @@
                             }, 50);
 
                         } else if (page.classList.contains('active')) {
-                            // 기존 활성 페이지는 왼쪽으로 밀려남
                             page.classList.remove('active');
                             page.classList.add('hidden-left');
                         } else {
-                            // 나머지는 오른쪽에 대기
                             page.classList.remove('active', 'hidden-left');
                             page.classList.add('hidden-right');
                         }
@@ -457,12 +452,11 @@
                 });
             });
 
-            // 모바일 메뉴 토글
             document.getElementById('mobile-menu-button').addEventListener('click', () => { 
                 mobileMenu.classList.toggle('hidden'); 
             });
 
-            // 🌟 2. 공정 탭 로직 🌟
+            // 공정 탭 로직
             const processTabs = document.querySelectorAll('.process-tab');
             const processContents = document.querySelectorAll('.process-content');
             processTabs.forEach(tab => {
@@ -477,7 +471,7 @@
                 });
             });
 
-            // 🌟 3. 지점 토글 (About 페이지 내부) 🌟
+            // 지점 토글
             const siteToggleCard = document.getElementById('site-toggle-card');
             const siteDetailsContainer = document.getElementById('site-details-container');
             siteToggleCard.addEventListener('click', () => {
@@ -492,7 +486,7 @@
                 }
             });
 
-            // 🌟 4. 사이드 패널 (Drawer) 로직 🌟
+            // 패널 로직
             const panelOverlay = document.getElementById('panel-overlay');
             const sidePanel = document.getElementById('side-panel');
             const panelBody = document.getElementById('panel-body');
@@ -516,7 +510,7 @@
             panelCloseBtn.addEventListener('click', closePanel);
             panelOverlay.addEventListener('click', closePanel);
 
-            // 이미지 팝업
+            // 이미지 확대
             function openImgModal(src) {
                 modalImg.src = src;
                 imgOverlay.style.display = 'flex';
@@ -538,7 +532,7 @@
                 });
             }
 
-            // 장비 상세 데이터 주입 로직
+            // 기계 장비 상세 (패널)
             document.querySelectorAll('.machine-toggle-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const target = card.dataset.target;
@@ -610,13 +604,11 @@
                 });
             });
 
-            // 핵심 역량(Strengths) 연동
+            // 핵심 역량 연동
             document.querySelectorAll('.strength-card').forEach(card => {
                 if (card.id === 'global-network-card') {
                     card.addEventListener('click', () => {
-                        // 1. Overview 탭(about) 클릭 트리거
                         document.querySelector('[data-link="about"]').click();
-                        // 2. 패널 확장
                         setTimeout(() => {
                             const mapContainer = document.getElementById('site-details-container');
                             mapContainer.classList.add('expanded');
