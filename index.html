@@ -13,18 +13,46 @@
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
             background-color: #F9F9FB; /* 고급스러운 오프화이트 베이스 */
             color: #111827;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
+            overflow: hidden; /* 🌟 메인 스크롤 제거 (SPA 구조) */
         }
 
-        /* 🌟 부드럽고 탄력있는 등장 애니메이션 */
+        /* 🌟 1. 앱 스타일 화면 전환 CSS 🌟 */
+        .page-section {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100dvh;
+            overflow-y: auto; overflow-x: hidden;
+            background-color: #F9F9FB;
+            padding-top: 80px; /* 헤더 공간 확보 */
+            padding-bottom: 60px;
+            transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.7s ease;
+            z-index: 10;
+        }
+        
+        .page-section.hidden-right {
+            transform: translateX(100%); /* 오른쪽에 대기 */
+            opacity: 0;
+            pointer-events: none;
+        }
+        .page-section.hidden-left {
+            transform: translateX(-20%); /* 왼쪽으로 살짝 밀리며 퇴장 (패럴랙스) */
+            opacity: 0;
+            pointer-events: none;
+        }
+        .page-section.active {
+            transform: translateX(0); /* 정중앙 활성화 */
+            opacity: 1;
+            z-index: 20;
+            pointer-events: auto;
+        }
+
+        /* 🌟 2. 부드럽고 탄력있는 내부 등장 애니메이션 */
         .dynamic-reveal {
             opacity: 0;
             transform: translateY(40px) scale(0.98);
-            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1); /* 스프링 같은 탄력 */
-            will-change: transform, opacity;
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .dynamic-reveal.is-visible {
+        .page-section.active .dynamic-reveal.is-visible {
             opacity: 1;
             transform: translateY(0) scale(1);
         }
@@ -48,108 +76,77 @@
             border-color: rgba(0,0,0,0.08);
         }
 
+        /* 네비게이션 활성화 바 */
+        .nav-link { position: relative; }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 2px; background-color: #2563EB; transition: width 0.3s ease;
+        }
+        .nav-link.active { color: #2563EB; }
+        .nav-link.active::after { width: 100%; }
+
         /* 탭 버튼 스타일 */
         .process-tab {
-            cursor: pointer;
-            padding: 0.75rem 2rem;
-            border-radius: 9999px;
-            color: #6B7280;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            cursor: pointer; padding: 0.75rem 2rem; border-radius: 9999px; color: #6B7280; font-weight: 600; transition: all 0.3s ease;
         }
-        .process-tab.active {
-            color: #ffffff;
-            background-color: #111827;
-            box-shadow: 0 4px 14px rgba(17, 24, 39, 0.2);
-        }
+        .process-tab.active { color: #ffffff; background-color: #111827; box-shadow: 0 4px 14px rgba(17, 24, 39, 0.2); }
+        
         .process-content {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(-10px);
+            max-height: 0; overflow: hidden; opacity: 0; transform: translateY(-10px);
             transition: max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, transform 0.4s ease;
         }
-        .process-content.active {
-            max-height: 5000px; /* 충분한 높이 */
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .process-content.active { max-height: 5000px; opacity: 1; transform: translateY(0); }
 
-        /* 글로벌 네트워크 확장 패널 (딱딱 내려가는 느낌) */
+        /* 확장 컨테이너 애니메이션 */
         .site-details-container {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transform: scaleY(0.95);
-            transform-origin: top;
+            max-height: 0; overflow: hidden; opacity: 0; transform: scaleY(0.95); transform-origin: top;
             transition: max-height 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, transform 0.5s ease;
         }
-        .site-details-container.expanded {
-            max-height: 2000px;
-            opacity: 1;
-            transform: scaleY(1);
-        }
+        .site-details-container.expanded { max-height: 2000px; opacity: 1; transform: scaleY(1); }
 
         /* 타임라인 라인 */
-        .timeline-line {
-            height: 0;
-            background: #2563EB;
-            transition: height 1.5s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-        .timeline-container.is-visible .timeline-line { height: 100%; }
+        .timeline-line { height: 0; background: #2563EB; transition: height 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .page-section.active .timeline-line { height: 100%; }
 
-        /* 🌟 NEW: 오른쪽에서 튀어나오는 사이드 패널 (드로어) 🌟 */
+        /* 🌟 서브 패널 (Drawer) 🌟 */
         .panel-overlay {
-            position: fixed; inset: 0;
-            background: rgba(17, 24, 39, 0.4);
-            backdrop-filter: blur(4px);
-            z-index: 99;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.4s ease;
+            position: fixed; inset: 0; background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(4px);
+            z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
         .panel-overlay.active { opacity: 1; pointer-events: auto; }
 
         .side-panel {
             position: fixed; top: 0; right: -100%;
             width: 100%; max-width: 600px; height: 100vh;
-            background: #ffffff;
-            z-index: 100;
-            box-shadow: -20px 0 50px rgba(0,0,0,0.1);
-            overflow-y: auto;
-            transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* 빠르고 부드럽게 튀어나옴 */
-            padding: 3rem;
+            background: #ffffff; z-index: 100; box-shadow: -20px 0 50px rgba(0,0,0,0.1);
+            overflow-y: auto; transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1); padding: 3rem;
         }
         .side-panel.active { right: 0; }
-        
         .side-panel::-webkit-scrollbar { width: 6px; }
         .side-panel::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
 
-        /* 이미지 확대 모달 (중앙에서 튀어나옴) */
+        /* 이미지 모달 */
         .image-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9);
-            display: none; justify-content: center; align-items: center;
-            z-index: 105; opacity: 0; transition: opacity 0.3s ease;
+            display: none; justify-content: center; align-items: center; z-index: 105; opacity: 0; transition: opacity 0.3s ease;
         }
         .image-overlay.active { opacity: 1; }
-        .image-modal-content {
-            transform: scale(0.8) translateY(50px);
-            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-        }
+        .image-modal-content { transform: scale(0.8) translateY(50px); transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
         .image-overlay.active .image-modal-content { transform: scale(1) translateY(0); }
     </style>
 </head>
 <body>
 
-    <!-- 헤더 -->
-    <header class="bg-white/80 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 transition-all duration-300">
+    <!-- 고정 헤더 -->
+    <header class="fixed w-full bg-white/80 backdrop-blur-xl border-b border-gray-200 top-0 z-[60] transition-all duration-300">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">DUCKSAN</h1>
+            <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 cursor-pointer" onclick="document.querySelector('[data-link=\'about\']').click()">DUCKSAN</h1>
             <div class="hidden md:flex space-x-8">
-                <a href="#about" class="text-sm font-semibold text-gray-500 hover:text-blue-600 transition-colors">Overview</a>
-                <a href="#history" class="text-sm font-semibold text-gray-500 hover:text-blue-600 transition-colors">History</a>
-                <a href="#bluesign" class="text-sm font-semibold text-gray-500 hover:text-blue-600 transition-colors">Sustainability</a>
-                <a href="#process" class="text-sm font-semibold text-gray-500 hover:text-blue-600 transition-colors">Process</a>
-                <a href="#strengths" class="text-sm font-semibold text-gray-500 hover:text-blue-600 transition-colors">Strengths</a>
+                <a href="#about" data-link="about" class="nav-link active text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors">Overview</a>
+                <a href="#history" data-link="history" class="nav-link text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors">History</a>
+                <a href="#bluesign" data-link="bluesign" class="nav-link text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors">Sustainability</a>
+                <a href="#process" data-link="process" class="nav-link text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors">Process</a>
+                <a href="#strengths" data-link="strengths" class="nav-link text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors">Strengths</a>
             </div>
             <div class="md:hidden">
                 <button id="mobile-menu-button" class="text-gray-900 focus:outline-none">
@@ -157,12 +154,22 @@
                 </button>
             </div>
         </nav>
+        <!-- 모바일 메뉴 -->
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 flex-col shadow-lg z-[60]">
+            <a href="#about" data-link="about" class="nav-link-mobile block py-3 px-6 text-gray-600 hover:bg-gray-50 border-b">Overview</a>
+            <a href="#history" data-link="history" class="nav-link-mobile block py-3 px-6 text-gray-600 hover:bg-gray-50 border-b">History</a>
+            <a href="#bluesign" data-link="bluesign" class="nav-link-mobile block py-3 px-6 text-gray-600 hover:bg-gray-50 border-b">Sustainability</a>
+            <a href="#process" data-link="process" class="nav-link-mobile block py-3 px-6 text-gray-600 hover:bg-gray-50 border-b">Process</a>
+            <a href="#strengths" data-link="strengths" class="nav-link-mobile block py-3 px-6 text-gray-600 hover:bg-gray-50">Strengths</a>
+        </div>
     </header>
 
-    <main>
-        <!-- ABOUT SECTION -->
-        <section id="about" class="pt-32 pb-20 md:py-40 flex items-center min-h-screen">
-            <div class="container mx-auto px-6 text-center">
+    <!-- 🌟 메인 컨테이너 (화면들이 여기서 교차됨) 🌟 -->
+    <main class="relative w-full h-[100dvh] overflow-hidden">
+        
+        <!-- PAGE 1: ABOUT (OVERVIEW) -->
+        <section id="about" class="page-section active">
+            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-140px)] flex flex-col justify-center">
                 <h2 class="text-5xl md:text-8xl font-black tracking-tighter text-gray-900 dynamic-reveal mb-6">
                     The Professional<br>of Fabric.
                 </h2>
@@ -170,7 +177,7 @@
                     Leading the future of the textile industry with innovation and technology since 1988.
                 </p>
                 
-                <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="premium-card p-10 dynamic-reveal delay-100 text-center">
                         <p class="text-5xl md:text-6xl font-black text-blue-600 mb-2">1988</p>
                         <p class="text-gray-500 font-semibold text-lg">Founded</p>
@@ -186,49 +193,49 @@
                     </div>
                 </div>
                 
-                <!-- 확장 맵 (딱딱 내려오는 컨테이너) -->
+                <!-- 확장 맵 -->
                 <div id="site-details-container" class="site-details-container mt-8 bg-white p-10 rounded-[32px] shadow-xl text-left border border-gray-100">
                     <h3 class="text-3xl font-bold text-gray-900 mb-8">Our Global Presence</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="bg-gray-50 p-6 rounded-2xl">
                             <h4 class="font-bold text-xl mb-1 text-gray-900">Seoul Plant 1 & Office</h4>
                             <p class="text-gray-500 mb-4 text-sm">Gwangju-si, Korea</p>
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/seoul-map.jpg" class="w-full h-auto rounded-xl object-cover hover:opacity-80 transition-opacity" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Seoul';">
+                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/seoul-map.jpg" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Seoul';">
                         </div>
                         <div class="bg-gray-50 p-6 rounded-2xl">
                             <h4 class="font-bold text-xl mb-1 text-gray-900">Busan Office</h4>
                             <p class="text-gray-500 mb-4 text-sm">Busan, Korea</p>
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/busan-map.jpg" class="w-full h-auto rounded-xl object-cover hover:opacity-80 transition-opacity" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Busan';">
+                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/busan-map.jpg" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Busan';">
                         </div>
                         <div class="bg-gray-50 p-6 rounded-2xl">
                             <h4 class="font-bold text-xl mb-1 text-gray-900">DSVINA Plant</h4>
                             <p class="text-gray-500 mb-4 text-sm">Bình Dương, Vietnam</p>
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/dsvina-map.jpg" class="w-full h-auto rounded-xl object-cover hover:opacity-80 transition-opacity" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Vietnam';">
+                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/dsvina-map.jpg" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Vietnam';">
                         </div>
                         <div class="bg-gray-50 p-6 rounded-2xl">
                             <h4 class="font-bold text-xl mb-1 text-gray-900">Indonesia Expansion</h4>
                             <p class="text-gray-500 mb-4 text-sm">Jakarta, Indonesia</p>
-                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/indonesia%20-%20under%20construction.jpg" class="w-full h-auto rounded-xl object-cover hover:opacity-80 transition-opacity" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Indonesia';">
+                            <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/indonesia%20-%20under%20construction.jpg" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/3B82F6?text=Indonesia';">
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- HISTORY SECTION -->
-        <section id="history" class="py-32 flex items-center min-h-screen">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-24 dynamic-reveal">
+        <!-- PAGE 2: HISTORY -->
+        <section id="history" class="page-section hidden-right">
+            <div class="container mx-auto px-6 min-h-[calc(100vh-140px)] flex flex-col justify-center py-10">
+                <div class="text-center mb-16 dynamic-reveal">
                     <h2 class="text-5xl font-extrabold text-gray-900">History.</h2>
                 </div>
                 
-                <div class="relative timeline-container dynamic-reveal delay-100 max-w-4xl mx-auto">
+                <div class="relative timeline-container max-w-4xl mx-auto dynamic-reveal delay-100">
                     <!-- 중앙 선 -->
                     <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-gray-200 rounded-full overflow-hidden hidden md:block">
                         <div class="timeline-line w-full rounded-full"></div>
                     </div>
                     
-                    <div class="space-y-16">
+                    <div class="space-y-16 pb-20">
                         <!-- 1988 -->
                         <div class="relative flex flex-col md:flex-row justify-center items-center w-full dynamic-reveal delay-100">
                             <div class="w-full md:w-1/2 flex md:justify-end md:pr-12 mb-6 md:mb-0">
@@ -274,10 +281,10 @@
             </div>
         </section>
 
-        <!-- SUSTAINABILITY -->
-        <section id="bluesign" class="py-32 bg-white flex items-center min-h-[80vh] border-y border-gray-100">
-            <div class="container mx-auto px-6 text-center">
-                <div class="dynamic-reveal">
+        <!-- PAGE 3: SUSTAINABILITY -->
+        <section id="bluesign" class="page-section hidden-right bg-white">
+            <div class="container mx-auto px-6 h-[calc(100vh-140px)] flex items-center justify-center">
+                <div class="dynamic-reveal text-center">
                     <div class="flex justify-center items-center gap-6 mb-12">
                         <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/bluesign-logo-neg.jpg" class="h-10 md:h-14 filter grayscale hover:grayscale-0 transition-all" onerror="this.onerror=null;this.src='https://placehold.co/400x100/111111/ffffff?text=bluesign';">
                         <div class="px-6 py-2 border-2 border-gray-900 rounded-full text-2xl font-black tracking-widest text-gray-900">
@@ -295,35 +302,35 @@
             </div>
         </section>
 
-        <!-- PROCESS SECTION -->
-        <section id="process" class="py-32 flex items-center min-h-screen">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16 dynamic-reveal">
+        <!-- PAGE 4: PROCESS -->
+        <section id="process" class="page-section hidden-right">
+            <div class="container mx-auto px-6 min-h-[calc(100vh-140px)] flex flex-col justify-center py-10">
+                <div class="text-center mb-12 dynamic-reveal">
                     <h2 class="text-5xl font-extrabold text-gray-900">Process.</h2>
                     <p class="text-lg text-gray-500 mt-4">Tap on a card to view detailed specifications.</p>
                 </div>
 
-                <div class="flex justify-center mb-12 dynamic-reveal delay-100">
+                <div class="flex justify-center mb-10 dynamic-reveal delay-100">
                     <nav class="flex space-x-2 bg-gray-100 p-1 rounded-full" aria-label="Tabs">
                         <button class="process-tab active" data-target="tab-creation">Fabric Creation</button>
                         <button class="process-tab" data-target="tab-treatment">Post-Processing</button>
                     </nav>
                 </div>
 
-                <!-- 탭 컨텐츠 1 (Fabric Creation) -->
+                <!-- 탭 컨텐츠 1 -->
                 <div id="tab-creation" class="process-content active dynamic-reveal delay-200">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                        <div class="premium-card p-8 machine-toggle-card" data-target="extruding-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/extruding-machine-equipment.jpg" data-images-product="">
+                        <div class="premium-card p-8 machine-toggle-card" data-target="extruding-details">
                             <h4 class="font-bold text-xl mb-3 text-gray-900">Extruding</h4>
                             <p class="text-gray-500 text-sm">Produces functional yarns using PP chips.</p>
                             <div class="mt-6 font-semibold text-blue-600 text-sm">Open Details →</div>
                         </div>
-                        <div class="premium-card p-8 machine-toggle-card" data-target="warping-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/warping-machine-equipment.jpg" data-images-product="">
+                        <div class="premium-card p-8 machine-toggle-card" data-target="warping-details">
                             <h4 class="font-bold text-xl mb-3 text-gray-900">Warping</h4>
                             <p class="text-gray-500 text-sm">Evenly winds yarn onto warp beams.</p>
                             <div class="mt-6 font-semibold text-blue-600 text-sm">Open Details →</div>
                         </div>
-                        <div class="premium-card p-8 machine-toggle-card" data-target="warp-knitting-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/double-raschel-machine.jpg,https://github.com/LukeJEpark/Ducksan/raw/main/images/jqd-warp-knitting-machine.jpg" data-images-product="">
+                        <div class="premium-card p-8 machine-toggle-card" data-target="warp-knitting-details">
                             <h4 class="font-bold text-xl mb-3 text-gray-900">Warp Knit & JQD</h4>
                             <p class="text-gray-500 text-sm">Advanced machines for complex patterns.</p>
                             <div class="mt-6 font-semibold text-blue-600 text-sm">Open Details →</div>
@@ -336,10 +343,10 @@
                     </div>
                 </div>
 
-                <!-- 탭 컨텐츠 2 (Post-Processing) -->
+                <!-- 탭 컨텐츠 2 -->
                 <div id="tab-treatment" class="process-content">
-                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                        <div class="premium-card p-8 machine-toggle-card" data-target="sputtering-details" data-images-machine="https://github.com/LukeJEpark/Ducksan/raw/main/images/sputtering-machine-equipment.jpg" data-images-product="">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
+                        <div class="premium-card p-8 machine-toggle-card" data-target="sputtering-details">
                             <h4 class="font-bold text-xl mb-3 text-gray-900">Sputtering</h4>
                             <p class="text-gray-500 text-sm">Applies metallic effect coatings.</p>
                             <div class="mt-6 font-semibold text-blue-600 text-sm">Open Details →</div>
@@ -349,10 +356,10 @@
             </div>
         </section>
 
-        <!-- STRENGTHS SECTION -->
-        <section id="strengths" class="py-32 min-h-[80vh] flex items-center bg-white border-t border-gray-100">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-20 dynamic-reveal">
+        <!-- PAGE 5: STRENGTHS -->
+        <section id="strengths" class="page-section hidden-right bg-white">
+            <div class="container mx-auto px-6 h-[calc(100vh-140px)] flex flex-col justify-center">
+                <div class="text-center mb-16 dynamic-reveal">
                     <h2 class="text-5xl font-extrabold text-gray-900">Why DUCKSAN.</h2>
                 </div>
                 
@@ -367,32 +374,23 @@
                         <h4 class="font-bold text-2xl mb-3 text-gray-900">Creative R&D</h4>
                         <p class="text-gray-500 leading-relaxed">Provides customized fabric development and trend-setting ideas.</p>
                     </div>
-                    <div id="global-network-card" class="premium-card p-10 strength-card dynamic-reveal delay-300">
-                        <div class="text-5xl mb-6 text-blue-500">🌍</div>
-                        <h4 class="font-bold text-2xl mb-3 text-gray-900">Global Network</h4>
-                        <p class="text-gray-500 leading-relaxed">Connects with customers worldwide through sites in Korea, Vietnam, and Indonesia.</p>
+                    <div id="global-network-card" class="premium-card p-10 strength-card dynamic-reveal delay-300 bg-blue-50 border-blue-100">
+                        <div class="text-5xl mb-6 text-blue-600">🌍</div>
+                        <h4 class="font-bold text-2xl mb-3 text-blue-900">Global Network</h4>
+                        <p class="text-blue-700 leading-relaxed">Tap here to view our worldwide infrastructure map.</p>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-6 text-center">
-            <p class="font-semibold tracking-wide">&copy; 2026 DUCKSAN CO., LTD.</p>
-            <p class="text-sm text-gray-500 mt-2">The Professional of Fabric</p>
-        </div>
-    </footer>
-
-    <!-- 🚨 NEW: 밖에서 안으로 확 튀어나오는 사이드 패널 (Drawer) 🚨 -->
+    <!-- 🌟 우측 서브 패널 (상세내용 팝업) 🌟 -->
     <div id="panel-overlay" class="panel-overlay"></div>
     <div id="side-panel" class="side-panel">
         <button id="panel-close-btn" class="absolute top-6 right-6 p-2 bg-gray-100 rounded-full text-gray-900 hover:bg-gray-200 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
-        <div id="panel-body" class="pt-10">
-            <!-- 내용이 여기에 렌더링 됩니다 -->
-        </div>
+        <div id="panel-body" class="pt-10"></div>
     </div>
 
     <!-- 이미지 확대 모달 -->
@@ -401,25 +399,70 @@
             <button id="image-modal-close-button" class="absolute -top-12 right-0 p-2 text-white hover:text-gray-300 transition-colors">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <img id="image-modal-img" src="" class="rounded-2xl shadow-2xl max-h-[85vh] object-contain">
+            <img id="image-modal-img" src="" class="rounded-2xl shadow-2xl max-h-[85vh] object-contain bg-white">
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
-            // 🌟 Intersection Observer (스크롤 애니메이션)
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    }
+            // 🌟 1. 앱 스타일 화면 전환 (라우팅) 로직 🌟
+            const navLinks = document.querySelectorAll('[data-link]');
+            const pages = document.querySelectorAll('.page-section');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            // 초기 애니메이션 강제 트리거 (About 페이지)
+            setTimeout(() => {
+                document.getElementById('about').querySelectorAll('.dynamic-reveal').forEach(el => el.classList.add('is-visible'));
+            }, 100);
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('data-link');
+                    
+                    // 데스크탑 메뉴 활성화 표시
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    const deskLink = document.querySelector(`.nav-link[data-link="${targetId}"]`);
+                    if(deskLink) deskLink.classList.add('active');
+
+                    // 모바일 메뉴 닫기
+                    mobileMenu.classList.add('hidden');
+
+                    // 화면 슬라이드 로직
+                    pages.forEach(page => {
+                        if (page.id === targetId) {
+                            // 타겟 페이지 등장
+                            page.classList.remove('hidden-right', 'hidden-left');
+                            page.classList.add('active');
+                            page.scrollTop = 0; // 최상단으로 리셋
+                            
+                            // 내부 애니메이션 리셋 및 재실행 (쫀득하게 다시 튀어나옴)
+                            const reveals = page.querySelectorAll('.dynamic-reveal');
+                            reveals.forEach(el => el.classList.remove('is-visible'));
+                            setTimeout(() => {
+                                reveals.forEach(el => el.classList.add('is-visible'));
+                            }, 50);
+
+                        } else if (page.classList.contains('active')) {
+                            // 기존 활성 페이지는 왼쪽으로 밀려남
+                            page.classList.remove('active');
+                            page.classList.add('hidden-left');
+                        } else {
+                            // 나머지는 오른쪽에 대기
+                            page.classList.remove('active', 'hidden-left');
+                            page.classList.add('hidden-right');
+                        }
+                    });
                 });
-            }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' });
+            });
 
-            document.querySelectorAll('.dynamic-reveal, .timeline-container').forEach(el => observer.observe(el));
+            // 모바일 메뉴 토글
+            document.getElementById('mobile-menu-button').addEventListener('click', () => { 
+                mobileMenu.classList.toggle('hidden'); 
+            });
 
-            // 공정 탭 로직 (아코디언 전개 방식)
+            // 🌟 2. 공정 탭 로직 🌟
             const processTabs = document.querySelectorAll('.process-tab');
             const processContents = document.querySelectorAll('.process-content');
             processTabs.forEach(tab => {
@@ -427,33 +470,29 @@
                     const targetId = tab.dataset.target;
                     processTabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
-                    processContents.forEach(c => {
-                        c.classList.remove('active');
-                    });
-                    const targetContent = document.getElementById(targetId);
+                    processContents.forEach(c => c.classList.remove('active'));
                     setTimeout(() => {
-                        targetContent.classList.add('active');
+                        document.getElementById(targetId).classList.add('active');
                     }, 50);
                 });
             });
-            if (processTabs.length > 0) {
-                document.getElementById(processTabs[0].dataset.target).classList.add('active');
-            }
 
-            // 지점 확장 토글 (딱딱 내려오는 컨테이너)
+            // 🌟 3. 지점 토글 (About 페이지 내부) 🌟
             const siteToggleCard = document.getElementById('site-toggle-card');
             const siteDetailsContainer = document.getElementById('site-details-container');
             siteToggleCard.addEventListener('click', () => {
                 siteDetailsContainer.classList.toggle('expanded');
-                // 부드러운 스크롤 이동 연동
-                if(siteDetailsContainer.classList.contains('expanded')){
+                if (siteDetailsContainer.classList.contains('expanded')) {
                     setTimeout(() => {
-                        siteDetailsContainer.scrollIntoView({behavior: 'smooth', block: 'center'});
+                        document.getElementById('about').scrollTo({
+                            top: siteDetailsContainer.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
                     }, 300);
                 }
             });
 
-            // 🌟 사이드 패널 (튀어나오는 Drawer) 로직 🌟
+            // 🌟 4. 사이드 패널 (Drawer) 로직 🌟
             const panelOverlay = document.getElementById('panel-overlay');
             const sidePanel = document.getElementById('side-panel');
             const panelBody = document.getElementById('panel-body');
@@ -467,19 +506,17 @@
                 panelBody.innerHTML = html;
                 panelOverlay.classList.add('active');
                 sidePanel.classList.add('active');
-                document.body.style.overflow = 'hidden'; // 뒤쪽 배경 스크롤 방지
                 attachImgListeners();
             }
             function closePanel() {
                 panelOverlay.classList.remove('active');
                 sidePanel.classList.remove('active');
-                document.body.style.overflow = 'auto';
                 setTimeout(() => { panelBody.innerHTML = ''; }, 600); 
             }
             panelCloseBtn.addEventListener('click', closePanel);
             panelOverlay.addEventListener('click', closePanel);
 
-            // 이미지 확대
+            // 이미지 팝업
             function openImgModal(src) {
                 modalImg.src = src;
                 imgOverlay.style.display = 'flex';
@@ -501,25 +538,20 @@
                 });
             }
 
-            // 장비 카드 클릭 시 -> 오른쪽 패널 열림
+            // 장비 상세 데이터 주입 로직
             document.querySelectorAll('.machine-toggle-card').forEach(card => {
                 card.addEventListener('click', () => {
-                    const title = card.querySelector('h4').textContent;
-                    const desc = card.querySelector('p').textContent;
-                    
+                    const target = card.dataset.target;
                     let html = '';
-                    if (card.dataset.target === 'weaving-details') {
+                    if (target === 'weaving-details') {
                          html = `
                             <h3 class="text-4xl font-extrabold mb-4 text-gray-900">Weaving Machine</h3>
                             <p class="text-gray-600 text-lg mb-8">Creating intricate and precise patterned fabrics with superior strength.</p>
-                            
                             <div class="mb-10">
                                 <h4 class="text-2xl font-bold mb-4 text-gray-900 border-b pb-2">Mono / Woven</h4>
                                 <div class="space-y-6 mt-4">
-                                    <div>
-                                        <h5 class="font-bold text-sm text-blue-600 mb-2 uppercase">Machine</h5>
-                                        <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-loom-operation.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Machine';">
-                                    </div>
+                                    <h5 class="font-bold text-sm text-blue-600 mb-2 uppercase">Machine</h5>
+                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-loom-operation.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Machine';">
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
                                             <h5 class="font-bold text-sm text-blue-600 mb-2 uppercase">Product</h5>
@@ -532,26 +564,20 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div>
                                 <h4 class="text-2xl font-bold mb-4 text-gray-900 border-b pb-2">Jacquard Mono</h4>
                                 <div class="space-y-6 mt-4">
-                                    <div>
-                                        <h5 class="font-bold text-sm text-blue-600 mb-2 uppercase">Machine</h5>
-                                        <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/weaving-machine-r9500.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Machine';">
-                                    </div>
-                                    <div>
-                                        <h5 class="font-bold text-sm text-blue-600 mb-2 uppercase">Product</h5>
-                                        <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-jacquard.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Product';">
-                                    </div>
+                                    <h5 class="font-bold text-sm text-blue-600 mb-2 uppercase">Machine</h5>
+                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/weaving-machine-r9500.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Machine';">
+                                    <h5 class="font-bold text-sm text-blue-600 mb-2 uppercase">Product</h5>
+                                    <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/mono-jacquard.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Product';">
                                 </div>
                             </div>
                         `;
-                    } else if (card.dataset.target === 'warp-knitting-details') {
+                    } else if (target === 'warp-knitting-details') {
                         html = `
                             <h3 class="text-4xl font-extrabold mb-4 text-gray-900">Warp Knitting & Jacquard</h3>
                             <p class="text-gray-600 text-lg mb-8">Advanced machines producing complex patterns and high elasticity.</p>
-                            
                             <div class="mb-10">
                                 <h4 class="text-2xl font-bold mb-4 text-gray-900 border-b pb-2">Warp Knit (Raschel)</h4>
                                 <div class="space-y-6 mt-4">
@@ -559,7 +585,6 @@
                                     <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/warp-knit-fabric-product.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Product';">
                                 </div>
                             </div>
-                            
                             <div>
                                 <h4 class="text-2xl font-bold mb-4 text-gray-900 border-b pb-2">Jacquard</h4>
                                 <div class="space-y-6 mt-4">
@@ -568,37 +593,40 @@
                                 </div>
                             </div>
                         `;
-                    } else {
-                        const mImgs = card.dataset.imagesMachine.split(',').filter(Boolean);
-                        const pImgs = card.dataset.imagesProduct.split(',').filter(Boolean);
-                        let imgHtml = '';
-                        if(mImgs.length) {
-                            imgHtml += `<div class="mb-8"><h5 class="font-bold text-lg text-gray-900 border-b pb-2 mb-4">Machine</h5><div class="space-y-4">`;
-                            mImgs.forEach(s => imgHtml += `<img src="${s}" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Machine';">`);
-                            imgHtml += `</div></div>`;
-                        }
-                        if(pImgs.length) {
-                            imgHtml += `<div><h5 class="font-bold text-lg text-gray-900 border-b pb-2 mb-4">Product</h5><div class="space-y-4">`;
-                            pImgs.forEach(s => imgHtml += `<img src="${s}" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Product';">`);
-                            imgHtml += `</div></div>`;
-                        }
-                        html = `<h3 class="text-4xl font-extrabold mb-4 text-gray-900">${title}</h3><p class="text-gray-600 text-lg mb-8">${desc}</p>${imgHtml}`;
+                    } else if (target === 'extruding-details') {
+                        html = `<h3 class="text-4xl font-extrabold mb-4 text-gray-900">Extruding Machine</h3>
+                                <p class="text-gray-600 text-lg mb-8">Produces functional yarns using PP chips.</p>
+                                <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/extruding-machine-equipment.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Machine';">`;
+                    } else if (target === 'warping-details') {
+                        html = `<h3 class="text-4xl font-extrabold mb-4 text-gray-900">Warping Machine</h3>
+                                <p class="text-gray-600 text-lg mb-8">Evenly winds yarn onto warp beams.</p>
+                                <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/warping-machine-equipment.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Machine';">`;
+                    } else if (target === 'sputtering-details') {
+                        html = `<h3 class="text-4xl font-extrabold mb-4 text-gray-900">Sputtering Machine</h3>
+                                <p class="text-gray-600 text-lg mb-8">Applies metallic effect coatings.</p>
+                                <img src="https://github.com/LukeJEpark/Ducksan/raw/main/images/sputtering-machine-equipment.jpg" class="w-full rounded-2xl" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E5E7EB/9CA3AF?text=Machine';">`;
                     }
                     openPanel(html);
                 });
             });
 
-            // 핵심 역량 클릭 시 -> 오른쪽 패널 열림
+            // 핵심 역량(Strengths) 연동
             document.querySelectorAll('.strength-card').forEach(card => {
                 if (card.id === 'global-network-card') {
                     card.addEventListener('click', () => {
-                        document.getElementById('about').scrollIntoView({behavior: 'smooth'});
+                        // 1. Overview 탭(about) 클릭 트리거
+                        document.querySelector('[data-link="about"]').click();
+                        // 2. 패널 확장
                         setTimeout(() => {
-                            siteDetailsContainer.classList.add('expanded');
+                            const mapContainer = document.getElementById('site-details-container');
+                            mapContainer.classList.add('expanded');
                             setTimeout(() => {
-                                siteDetailsContainer.scrollIntoView({behavior: 'smooth', block: 'center'});
-                            }, 300);
-                        }, 600); 
+                                document.getElementById('about').scrollTo({
+                                    top: mapContainer.offsetTop - 100,
+                                    behavior: 'smooth'
+                                });
+                            }, 400);
+                        }, 800);
                     });
                 } else {
                     card.addEventListener('click', () => {
@@ -607,9 +635,9 @@
                         const emoji = card.dataset.emoji;
                         openPanel(`
                             <div class="h-full flex flex-col justify-center items-center text-center -mt-10">
-                                <div class="text-[6rem] mb-6">${emoji}</div>
+                                <div class="text-[6rem] mb-6 drop-shadow-md">${emoji}</div>
                                 <h3 class="text-4xl font-black mb-4 text-gray-900">${title}</h3>
-                                <p class="text-gray-500 text-xl leading-relaxed">${desc}</p>
+                                <p class="text-gray-500 text-xl leading-relaxed max-w-sm">${desc}</p>
                             </div>
                         `);
                     });
